@@ -17,20 +17,14 @@ import torch.utils.data
 import torch.utils.data.distributed
 import torchvision.transforms as transforms
 import torchvision.datasets as datasets
-import torchvision.models as models
-
-from bit_config import *
-from utils import *
-<<<<<<< HEAD
-from pytorchcv.model_provider import get_model as ptcv_get_model
-
-parser = argparse.ArgumentParser(description='PyTorch ImageNet Training')
-parser.add_argument('--data', metavar='DIR',
-=======
+#import torchvision.models as models
+#
+#from bit_config import *
+#from utils import *
+import torchvision.models.quantization as models
 
 parser = argparse.ArgumentParser(description='PyTorch ImageNet Training')
 parser.add_argument('--data', metavar='DIR', default='../data/ILSVRC/imagenet/',
->>>>>>> c78c005ff2ba6e865d9d2e4d913dbfee5f9ecb3c
                     help='path to dataset')
 parser.add_argument('-a', '--arch', metavar='ARCH', default='resnet18',
                     help='model architecture')
@@ -44,11 +38,7 @@ parser.add_argument('--epochs', default=90, type=int, metavar='N',
                     help='number of total epochs to run')
 parser.add_argument('--start-epoch', default=0, type=int, metavar='N',
                     help='manual epoch number (useful on restarts)')
-<<<<<<< HEAD
-parser.add_argument('-b', '--batch-size', default=1, type=int,
-=======
 parser.add_argument('-b', '--batch-size', default=128, type=int,
->>>>>>> c78c005ff2ba6e865d9d2e4d913dbfee5f9ecb3c
                     metavar='N',
                     help='mini-batch size (default: 256), this is the total '
                          'batch size of all GPUs on the current node when '
@@ -76,11 +66,7 @@ parser.add_argument('--dist-url', default='tcp://224.66.41.62:23456', type=str,
                     help='url used to set up distributed training')
 parser.add_argument('--dist-backend', default='nccl', type=str,
                     help='distributed backend')
-<<<<<<< HEAD
-parser.add_argument('--seed', default=None, type=int,
-=======
 parser.add_argument('--seed', default=1, type=int,
->>>>>>> c78c005ff2ba6e865d9d2e4d913dbfee5f9ecb3c
                     help='seed for initializing training. ')
 parser.add_argument('--gpu', default=None, type=int,
                     help='GPU id to use.')
@@ -101,11 +87,7 @@ parser.add_argument('--quant-mode',
                     help='quantization mode')
 parser.add_argument('--save-path',
                     type=str,
-<<<<<<< HEAD
-                    default='checkpoints/imagenet/test/',
-=======
                     default='check/',
->>>>>>> c78c005ff2ba6e865d9d2e4d913dbfee5f9ecb3c
                     help='path to save the quantized model')
 parser.add_argument('--data-percentage',
                     type=float,
@@ -170,24 +152,11 @@ parser.add_argument('--fixed-point-quantization',
                          'use fixed-point rather than integer-only quantization')
 
 best_acc1 = 0
-<<<<<<< HEAD
-quantize_arch_dict = {'resnet50': q_resnet50, 'resnet50b': q_resnet50,
-                      'resnet18': q_resnet18, 'resnet101': q_resnet101,
-                      'inceptionv3': q_inceptionv3,
-                      'mobilenetv2_w1': q_mobilenetv2_w1}
-=======
->>>>>>> c78c005ff2ba6e865d9d2e4d913dbfee5f9ecb3c
 args = parser.parse_args()
 if not os.path.exists(args.save_path):
     os.makedirs(args.save_path)
 
-<<<<<<< HEAD
-hook_counter = args.checkpoint_iter
 hook_keys = []
-hook_keys_counter = 0
-=======
-hook_keys = []
->>>>>>> c78c005ff2ba6e865d9d2e4d913dbfee5f9ecb3c
 
 logging.basicConfig(format='%(asctime)s - %(message)s',
                     datefmt='%d-%b-%y %H:%M:%S', filename=args.save_path + 'log.log')
@@ -216,66 +185,49 @@ def main_worker( args):
     global best_acc1
 
     # create model
-    option = 1
-    if option==0:
-        import torchvision.models as models
-        from pytorchcv.model_provider import get_model as ptcv_get_model
-        logging.info("=> using pre-trained PyTorchCV model '{}'".format(args.arch))
-        model = ptcv_get_model(args.arch, pretrained=True)
-    elif option==1:
+    model = models.resnet18(pretrained=True, progress=True, quantize=True)
 
-        from pytorchcv.model_provider import get_model as ptcv_get_model
-        logging.info("=> using pre-trained PyTorchCV model '{}'".format(args.arch))
-        model = ptcv_get_model(args.arch, pretrained=True)
-        quantize_arch_dict = {'resnet50': q_resnet50, 'resnet50b': q_resnet50,
-                              'resnet18': q_resnet18, 'resnet101': q_resnet101}
-        quantize_arch = quantize_arch_dict[args.arch]
-        model = quantize_arch(model)
+    #bit_config = bit_config_dict["bit_config_" + args.arch + "_" + args.quant_scheme]
+    #name_counter = 0
 
-    else:
-        model = models.resnet18(pretrained=True, progress=True, quantize=True)
+    #for name, m in model.named_modules():
+    #    if name in bit_config.keys():
+    #        name_counter += 1
+    #        setattr(m, 'quant_mode', 'symmetric')
+    #        setattr(m, 'bias_bit', args.bias_bit)
+    #        setattr(m, 'quantize_bias', (args.bias_bit != 0))
+    #        setattr(m, 'per_channel', args.channel_wise)
+    #        setattr(m, 'act_percentile', args.act_percentile)
+    #        setattr(m, 'act_range_momentum', args.act_range_momentum)
+    #        setattr(m, 'weight_percentile', args.weight_percentile)
+    #        setattr(m, 'fix_flag', False)
+    #        setattr(m, 'fix_BN', args.fix_BN)
+    #        setattr(m, 'fix_BN_threshold', args.fix_BN_threshold)
+    #        setattr(m, 'training_BN_mode', args.fix_BN)
+    #        setattr(m, 'checkpoint_iter_threshold', args.checkpoint_iter)
+    #        setattr(m, 'save_path', args.save_path)
+    #        setattr(m, 'fixed_point_quantization', args.fixed_point_quantization)
 
-    bit_config = bit_config_dict["bit_config_" + args.arch + "_" + args.quant_scheme]
-    name_counter = 0
+    #        if type(bit_config[name]) is tuple:
+    #            bitwidth = bit_config[name][0]
+    #            if bit_config[name][1] == 'hook':
+    #                m.register_forward_hook(hook_fn_forward)
+    #                global hook_keys
+    #                hook_keys.append(name)
+    #        else:
+    #            bitwidth = bit_config[name]
 
-    for name, m in model.named_modules():
-        if name in bit_config.keys():
-            name_counter += 1
-            setattr(m, 'quant_mode', 'symmetric')
-            setattr(m, 'bias_bit', args.bias_bit)
-            setattr(m, 'quantize_bias', (args.bias_bit != 0))
-            setattr(m, 'per_channel', args.channel_wise)
-            setattr(m, 'act_percentile', args.act_percentile)
-            setattr(m, 'act_range_momentum', args.act_range_momentum)
-            setattr(m, 'weight_percentile', args.weight_percentile)
-            setattr(m, 'fix_flag', False)
-            setattr(m, 'fix_BN', args.fix_BN)
-            setattr(m, 'fix_BN_threshold', args.fix_BN_threshold)
-            setattr(m, 'training_BN_mode', args.fix_BN)
-            setattr(m, 'checkpoint_iter_threshold', args.checkpoint_iter)
-            setattr(m, 'save_path', args.save_path)
-            setattr(m, 'fixed_point_quantization', args.fixed_point_quantization)
-
-            if type(bit_config[name]) is tuple:
-                bitwidth = bit_config[name][0]
-                if bit_config[name][1] == 'hook':
-                    m.register_forward_hook(hook_fn_forward)
-                    global hook_keys
-                    hook_keys.append(name)
-            else:
-                bitwidth = bit_config[name]
-
-            if hasattr(m, 'activation_bit'):
-                setattr(m, 'activation_bit', bitwidth)
-                if bitwidth == 4:
-                    setattr(m, 'quant_mode', 'asymmetric')
-            else:
-                setattr(m, 'weight_bit', bitwidth)
+    #        if hasattr(m, 'activation_bit'):
+    #            setattr(m, 'activation_bit', bitwidth)
+    #            if bitwidth == 4:
+    #                setattr(m, 'quant_mode', 'asymmetric')
+    #        else:
+    #            setattr(m, 'weight_bit', bitwidth)
     #print model
-    logging.info("match all modules defined in bit_config: {}".format(len(bit_config.keys()) == name_counter))
-    logging.info(model)
+    #logging.info("match all modules defined in bit_config: {}".format(len(bit_config.keys()) == name_counter))
+    #logging.info(model)
 
-    model = torch.nn.DataParallel(model).cuda()
+    #model = torch.nn.DataParallel(model).cuda()
     # define loss function (criterion) and optimizer
     criterion = nn.CrossEntropyLoss().cuda()
     cudnn.benchmark = True
@@ -316,14 +268,16 @@ def validate(val_loader, model, criterion, args):
         prefix='Test: ')
 
     # switch to evaluate mode
-    freeze_model(model)
+    #freeze_model(model)
     model.eval()
     sum_distribution=[]
     with torch.no_grad():
         end = time.time()
         for i, (images, target) in enumerate(val_loader):
-            target = target.cuda(None, non_blocking=True)
+            #target = target.cuda(None, non_blocking=True)
             output = model(images)
+            softmax= torch.nn.Softmax(dim=1)
+            output = softmax(output)
             sum_distribution.extend(torch.sum(output, dim=1).cpu().numpy())
             loss = criterion(output, target)
 
@@ -342,14 +296,14 @@ def validate(val_loader, model, criterion, args):
 
         logging.info(' * Acc@1 {top1.avg:.3f} Acc@5 {top5.avg:.3f}'.format(top1=top1, top5=top5))
     #print(sum_distribution)
-    with open('distribution_1.txt', 'w') as f:
+    with open('results/distribution_quantized_model_8bit.txt', 'w') as f:
      f.write(str(sum_distribution))
     import numpy as np
     #norm = np.linalg.norm(sum_distribution)
     print(f"mean: {np.mean(sum_distribution)} variance: {np.var(sum_distribution)}")
     sum_distribution = sum_distribution/np.mean(sum_distribution)
     print(f"mean: {np.mean(sum_distribution)} variance: {np.var(sum_distribution)}")
-
+   
     torch.save({'convbn_scaling_factor': {k: v for k, v in model.state_dict().items() if 'convbn_scaling_factor' in k},
                 'fc_scaling_factor': {k: v for k, v in model.state_dict().items() if 'fc_scaling_factor' in k},
                 'weight_integer': {k: v for k, v in model.state_dict().items() if 'weight_integer' in k},
@@ -357,7 +311,7 @@ def validate(val_loader, model, criterion, args):
                 'act_scaling_factor': {k: v for k, v in model.state_dict().items() if 'act_scaling_factor' in k},
                 }, args.save_path + 'quantized_checkpoint.pth.tar')
 
-    unfreeze_model(model)
+    #unfreeze_model(model)
 
     return top1.avg
 

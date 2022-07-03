@@ -121,6 +121,7 @@ class QuantLinear(Module):
         else:
             w = self.weight
             b = self.bias
+            bias_scaling_factor = self.bias_integer
 
         prev_act_scaling_factor = prev_act_scaling_factor.view(1, -1)
         x_int = x / prev_act_scaling_factor
@@ -302,7 +303,7 @@ class QuantAct(Module):
             correct_output_scale = self.act_scaling_factor.view(-1)
             return (quant_act_int * correct_output_scale, self.act_scaling_factor)
         else:
-            return x
+            return (x,self.act_scaling_factor)
 
 
 class QuantBnConv2d(Module):
@@ -486,9 +487,12 @@ class QuantBnConv2d(Module):
                 else:
                     raise Exception('For weight, we only support symmetric quantization.')
 
-            pre_act_scaling_factor = pre_act_scaling_factor.view(1, -1, 1, 1)
-            x_int = x / pre_act_scaling_factor
-            correct_output_scale = bias_scaling_factor.view(1, -1, 1, 1)
+                pre_act_scaling_factor = pre_act_scaling_factor.view(1, -1, 1, 1)
+                x_int = x / pre_act_scaling_factor
+                correct_output_scale = bias_scaling_factor.view(1, -1, 1, 1)
+            else:
+                x_int =x
+                correct_output_scale = self.convbn_scaling_factor.view(1,-1,1,1)
 
             return (F.conv2d(x_int, self.weight_integer, self.bias_integer, self.conv.stride, self.conv.padding,
                              self.conv.dilation, self.conv.groups) * correct_output_scale, self.convbn_scaling_factor)
