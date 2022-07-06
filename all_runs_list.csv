@@ -1,0 +1,11 @@
+python quant_eval.py 			  --epochs 1 --pretrained  --data-percentage 1 --quant-scheme layer1 -e
+python quant_eval.py 			  --epochs 1 --pretrained  --data-percentage 1 --quant-scheme uniform4 -e
+python quant_eval.py 			  --epochs 1 --pretrained  --data-percentage 1 --quant-scheme uniform8 -e
+python quant_eval.py 			  --epochs 1 --pretrained  --data-percentage 1 --fix-BN --quant-scheme uniform4 -e
+python quant_eval.py 			  --epochs 1 --pretrained  --data-percentage 1 --fix-BN --quant-scheme uniform8 -e
+python quant_eval_load_8bit_quantized.py  --epochs 1 --pretrained  --data-percentage 1 --quant-scheme layer1 -e
+python quant_eval_load_8bit_quantized.py  --epochs 1 --pretrained  --data-percentage 1 --quant-scheme uniform8 -e
+python quant_train.py			  --epochs 1 --pretrained  --data-percentage 1 --fix-BN --quant-scheme uniform4 -e
+python quant_train.py			  --epochs 1 --pretrained  --data-percentage 1 --fix-BN --quant-scheme uniform8 -e
+python quant_train1.py 			  --epochs 1 --pretrained  --data-percentage 1 --fix-BN --quant-scheme uniform8 -e
+python quant_train_resnet18.py		  --epochs 1 --pretrained  --data-percentage 1 --fix-BN --quant-scheme uniform4 -e

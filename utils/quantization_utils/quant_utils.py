@@ -296,7 +296,7 @@ class AsymmetricQuantFunction(Function):
         if specified_zero_point is not None:
             zero_point = specified_zero_point
         else:
-            zero_point = torch.tensor(0).cuda()
+            zero_point = torch.tensor(0)#.cuda()
 
         new_quant_x = linear_quantize(x, scale, zero_point, inplace=False)
         n = 2 ** k - 1
@@ -403,7 +403,7 @@ class fixedpoint_fn(Function):
 
                 m, e = batch_frexp(new_scale)
 
-                output = z_int.type(torch.double) * m.type(torch.double)
+                output = z_int.type(torch.double).cuda() * m.type(torch.double).cuda()
 
                 output = torch.round(output / (2.0 ** e))
 
