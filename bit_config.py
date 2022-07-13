@@ -1,6 +1,7 @@
 bit_config_dict = {
 
 "bit_config_resnet18_uniform32" : {
+'quant_input': 32,
 },
 "bit_config_resnet18_uniform8" : {
 'quant_input': 8,
