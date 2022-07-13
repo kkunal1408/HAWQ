@@ -155,6 +155,8 @@ args = parser.parse_args()
 if not os.path.exists(args.save_path):
     os.makedirs(args.save_path)
 
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
 hook_keys = []
 
 logging.basicConfig(format='%(asctime)s - %(message)s',
@@ -191,7 +193,7 @@ def main_worker( args):
         logging.info("=> using pre-trained PyTorchCV model '{}'".format(args.arch))
         model = ptcv_get_model(args.arch, pretrained=True)
     elif option==1:
-        
+
         from pytorchcv.model_provider import get_model as ptcv_get_model
         logging.info("=> using pre-trained PyTorchCV model '{}'".format(args.arch))
         model = ptcv_get_model(args.arch, pretrained=True)
@@ -247,9 +249,9 @@ def main_worker( args):
     logging.info("match all modules defined in bit_config: {}".format(len(bit_config.keys()) == name_counter))
     logging.info(model)
 
-    model = torch.nn.DataParallel(model).cuda()
+    model = torch.nn.DataParallel(model).to(device)
     # define loss function (criterion) and optimizer
-    criterion = nn.CrossEntropyLoss().cuda()
+    criterion = nn.CrossEntropyLoss().to(device)
     cudnn.benchmark = True
 
     # Data loading code
@@ -294,7 +296,7 @@ def validate(val_loader, model, criterion, args):
     with torch.no_grad():
         end = time.time()
         for i, (images, target) in enumerate(val_loader):
-            target = target.cuda(None, non_blocking=True)
+            target = target.to(device)#(None, non_blocking=True)
             output = model(images)
             softmax= torch.nn.Softmax(dim=1)
             output = softmax(output)
@@ -323,7 +325,7 @@ def validate(val_loader, model, criterion, args):
     print(f"mean: {np.mean(sum_distribution)} variance: {np.var(sum_distribution)}")
     sum_distribution = sum_distribution/np.mean(sum_distribution)
     print(f"mean: {np.mean(sum_distribution)} variance: {np.var(sum_distribution)}")
-   
+
     torch.save({'convbn_scaling_factor': {k: v for k, v in model.state_dict().items() if 'convbn_scaling_factor' in k},
                 'fc_scaling_factor': {k: v for k, v in model.state_dict().items() if 'fc_scaling_factor' in k},
                 'weight_integer': {k: v for k, v in model.state_dict().items() if 'weight_integer' in k},
